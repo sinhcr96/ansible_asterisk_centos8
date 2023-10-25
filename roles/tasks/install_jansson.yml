@@ -1,0 +1,23 @@
+---
+# Install Jansson
+
+- name: Download with GIT for Jansson
+  git:
+    repo: "{{ JANSSON_PACKAGE }}"
+    clone: yes
+    dest: /usr/src/jansson
+
+- name: Install Jansson
+  command: "{{ item }}"
+  args:
+    chdir: /usr/src/jansson
+  with_items:
+    - autoreconf  -i
+    - ./configure --prefix=/usr/
+    - make
+    - make install
+  register: output_jansson
+
+- name: Debug
+  debug:
+    var: output_jansson

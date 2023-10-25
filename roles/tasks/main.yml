@@ -1,0 +1,35 @@
+---
+# tasks file for automation_conf
+
+# tasks file for Install Asterisk
+
+- name: Run all tasks on main file
+  hosts: mysqlserver
+  tasks:
+    - name: Add vars
+      include_vars:
+        dir: /etc/ansible/roles/vars/
+        extensions:
+          - ''
+          - 'yaml'
+          - 'yml'
+          - 'json'
+
+    - name: Run all tasks on main file
+      include_tasks:
+        file: "{{ item }}"
+      with_items:
+        - install_packages_centos9.yml
+        - install_jansson.yml
+        - install_pjproject.yml
+        - install_asterisk.yml
+
+    - name: Reboot VMs
+      reboot:
+        reboot_timeout: 3600  
+        test_command: uptime
+      register: log_reboot
+
+    - name: Debug
+      debug:
+        var: log_reboot

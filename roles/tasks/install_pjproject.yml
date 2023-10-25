@@ -1,0 +1,24 @@
+---
+# Install Pjproject
+
+- name: Download with GIT for Pjproject
+  git:
+    repo: "{{ PJPROJECT_PACKAGE }}"
+    clone: yes
+    dest: /usr/src/pjproject
+
+- name: Install Pjproject
+  command: "{{ item }}"
+  args:
+    chdir: /usr/src/pjproject
+  with_items:
+    - ./configure --prefix=/usr --enable-shared --disable-sound --disable-resample --disable-video --disable-opencore-amr --libdir=/usr/lib64
+    - make dep
+    - make all
+    - make install
+    - sudo ldconfig
+  register: output_pjproject
+
+- name: Debug
+  debug:
+    var: output_pjproject

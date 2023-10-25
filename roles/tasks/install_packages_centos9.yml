@@ -1,0 +1,33 @@
+---
+# Install all required packages on Centos 8 that need to install Asterisk
+
+- name: Install Key ...
+  authorized_key:
+    user: root
+    state: present
+    key: "{{lookup('file','/root/.ssh/id_rsa.pub')}}"
+
+- name: Install update packages
+  yum: 
+    name: '*'
+    state: latest
+
+- name: Install update packages @Development
+  yum:
+    name: '@Development tools'
+    state: latest
+  register: output
+      
+- name: Debug
+  debug:
+    var: output
+      
+- name: Install all packages for install Asterisk
+  yum: 
+    name: '{{ item }}'
+    state: latest
+    update_cache: true
+  with_items: '{{ packages_required }}'
+
+- name: Install libedit-devel packages
+  command: dnf --enablerepo=powertools install -y libedit-devel

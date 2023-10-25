@@ -1,0 +1,5 @@
+---
+# vars file for install Asterisk
+packages_required:
+    - "@Development tools"
+    - epel-release 

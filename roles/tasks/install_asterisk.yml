@@ -1,0 +1,132 @@
+---
+# Install Asterisk
+
+- name: Download all sources Asterisk
+  unarchive:
+    src: "{{ ASTERISK_PACKAGE }}"
+    dest: "{{ SOURCE_DIR }}"
+    remote_src: yes
+
+- name: get the name of Asterisk
+  find:
+    file_type: directory
+    paths: "{{ SOURCE_DIR }}"
+    pattern: "asterisk-20.*"
+  register: asterisk_folder
+
+- name: Show asterisk_folder
+  debug:
+    msg: "{{asterisk_folder}}"
+
+- name: Install Asterisk
+  command: "{{ item }}"
+  args:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+  with_items:
+    - ./contrib/scripts/install_prereq install
+    - ./contrib/scripts/install_prereq install-unpackaged
+    - ./configure --libdir=/usr/lib64 --with-jansson-bundled
+  register: output_asterisk_install
+
+- name: Debug
+  debug:
+    var: output_asterisk_install
+
+- name: Copy the file from master to node_Asterisk
+  copy:
+    src: /etc/ansible/roles/files/menuselect_script.sh
+    dest: "{{ asterisk_folder.files[0].path }}"
+    mode: "0777"
+
+- name: Run shell script make menuselect
+  command: ./menuselect_script.sh
+  args:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+  register: output_menu
+
+- name: Debug
+  debug:
+    var: output_menu
+
+- name: Get MP3 source
+  command: contrib/scripts/get_mp3_source.sh
+  args:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+  register: output_mp3
+
+- name: Debug
+  debug:
+    var: output_mp3
+
+- name: Install Asterisk make
+  make:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+    target: all
+  become: yes
+  register: output_make
+
+- name: Debug
+  debug:
+    var: output_make
+
+- name: Install Asterisk make install
+  make:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+    target: install
+  become: yes
+  register: output_make_install
+
+- name: Debug
+  debug:
+    var: output_make_install
+
+- name: Install Asterisk make config
+  make:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+    target: config
+  become: yes
+  register: output_make_config
+
+- name: Debug
+  debug:
+    var: output_make_config
+
+- name: Install Asterisk make samples
+  make:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+    target: samples
+  register: output_make_samples
+
+- name: Debug
+  debug:
+    var: output_make_samples
+
+- name: Enable Asterisk service
+  service:
+    enabled: true
+    name: asterisk
+  register: output_enableast
+
+- name: Debug
+  debug:
+    var: output_enableast
+
+- name: Disable selinux
+  command: sed -i -e s,'SELINUX=enforcing','SELINUX=disabled', /etc/selinux/config
+  args:
+    chdir: "{{ asterisk_folder.files[0].path }}"
+  register: output_selinux
+
+- name: Debug
+  debug:
+    var: output_selinux
+
+- name: Start Asterisk service
+  service:
+    state: started
+    name: asterisk
+  register: output_startast
+
+- name: Debug
+  debug:
+    var: output_startast

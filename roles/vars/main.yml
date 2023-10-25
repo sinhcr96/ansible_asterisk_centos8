@@ -1,0 +1,23 @@
+---
+# vars file for automation_conf
+
+proxy_env:
+http_proxy: http://proxy.local:8080/
+https_proxy: http://proxy.local:8080/
+SIP_PORT: 5060
+IAX_PORT: 4569
+RTP_RANGE: 10000-10100
+SOURCE_DIR: /usr/src/
+MENUSELECT_DIR: /etc/ansible/roles/files/
+ASTERISK_PACKAGE: "http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-20-current.tar.gz"
+PJPROJECT_PACKAGE: "https://github.com/pjsip/pjproject.git"
+JANSSON_PACKAGE: "https://github.com/akheron/jansson.git"
+#Driver for cdr connextion to database: MYSQL or MSSQL
+Driver: MSSQL
+SQL_HOST: localhost
+SQL_USER: dbuser
+SQL_PASSWORD: dbpassword
+SQL_DATABASE: asterisk
+SQL_TABLE: cdr
+ASTERISK_GROUP: asterisk
+ASTERISK_USER: asterisk
